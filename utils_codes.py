@@ -2,7 +2,7 @@ import string
 import random
 from database import connecter
 
-def generate_unique_article_code(prefix: str = "A", length: int = 6) -> str:
+def generate_unique_article_code(prefix: str='A', length: int=6) -> str:
     """
     Génère un code article unique en base.
     - Format: prefix + <length> caractères alphanumériques en MAJ.
@@ -12,16 +12,14 @@ def generate_unique_article_code(prefix: str = "A", length: int = 6) -> str:
     attempt = 0
     while True:
         attempt += 1
-        candidate = prefix + ''.join(random.choice(chars) for _ in range(length))
+        candidate = prefix + ''.join((random.choice(chars) for _ in range(length)))
         try:
             with connecter() as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT 1 FROM articles WHERE code = ? LIMIT 1", (candidate,))
+                cur.execute('SELECT 1 FROM articles WHERE code = ? LIMIT 1', (candidate,))
                 if cur.fetchone() is None:
                     return candidate
         except Exception:
-            # En cas d'erreur DB, retourner quand même un code (best-effort)
             return candidate
         if attempt > 1000:
-            # Sécurité contre boucle infinie
             return candidate
